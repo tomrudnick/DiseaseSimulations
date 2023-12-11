@@ -253,5 +253,5 @@ fn run_simulation(simulations: i32, t_max: f64, lambda_range: (f64, f64)) {
 fn main() {
     //let mut sim = Simulation::new(2.0);
     //sim.run(1000000f64);
-    run_simulation(1000, 10000f64, (1.3, 1.7));
+    run_simulation(1000, 10000f64, (1.3, 1.8));
 }
