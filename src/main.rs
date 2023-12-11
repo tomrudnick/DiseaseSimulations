@@ -123,7 +123,6 @@ impl Node {
 }
 
 struct Simulation {
-    lambda: f64,
     nodes: HashMap<i32, Node>,
     t: f64,
     exp: Exp<f64>
@@ -136,7 +135,6 @@ impl Simulation {
         let start_node = Node::new(&exp, 0.0);
         nodes.insert(0, start_node);
         Simulation {
-            lambda,
             nodes,
             t: 0.0,
             exp,
@@ -208,16 +206,18 @@ impl Simulation {
 }
 
 
-
-fn run_simulation(simulations: i32, t_max: f64) {
+//step size is 0.01
+fn run_simulation(simulations: i32, t_max: f64, lambda_range: (f64, f64)) {
     let mut simulation_results = Vec::new();
     let n_workers = 12;
     let (tx, rx) = mpsc::channel();
     let pool = ThreadPool::new(n_workers);
 
+    let lower_bound = (lambda_range.0 * 100.0) as i32;
+    let upper_bound = (lambda_range.1 * 100.0) as i32;
 
-    let simulations = 10000;
-    for lambda in 130..=180 {
+    let simulations = simulations;
+    for lambda in lower_bound..=upper_bound {
         let tx = tx.clone();
 
         pool.execute(move || {
@@ -226,7 +226,7 @@ fn run_simulation(simulations: i32, t_max: f64) {
             println!("Lambda: {}", lambda);
             for i in 0..simulations {
                 let mut sim = Simulation::new(lambda);
-                let result = sim.run(1000000f64);
+                let result = sim.run(t_max);
                 if result {
                     success += 1;
                 }
@@ -253,5 +253,5 @@ fn run_simulation(simulations: i32, t_max: f64) {
 fn main() {
     //let mut sim = Simulation::new(2.0);
     //sim.run(1000000f64);
-    run_simulation(100, 1000f64);
+    run_simulation(1000, 10000f64, (1.3, 1.7));
 }
