@@ -2,6 +2,7 @@ use std::fmt::Display;
 use crate::simulation::sim::*;
 use threadpool::ThreadPool;
 use std::sync::mpsc;
+use rand::Rng;
 
 mod simulation;
 
@@ -92,7 +93,7 @@ fn run_simulation(simulations: i32, t_max: f64, lambda_range: (f64, f64)) -> Vec
             let mut end_nodes_sum = 0;  
             println!("Lambda: {}", lambda);
             for _i in 0..simulations {
-                let mut sim = sim1d::Simulation::new(lambda);
+                let mut sim = sim1d_rb::Simulation::new(lambda);
                 let result = sim.run(t_max);
                 if result {
                     success += 1;
@@ -196,19 +197,20 @@ fn print_results_to_csv_file<S:WriteToCsv>(results: &Vec<S>, file_name: &str) {
     wtr.flush().unwrap();
 }
 
-fn main() {
-    //let mut sim = Simulation::new(2.0);
-    //sim.run(1000000f64);
-    //let result = run_simulation(1000, 1000f64, (1.2, 1.7));
-    let result = run_simulation_alpha(
-                                      100,
-                                      1000f64,
-                                      (0.8, 1.8),
-                                      (0.9, 1.0),
-                                      SimAlphaType::OneDB);
-    print_results(&result);
-    print_results_to_csv_file(&result, "results.csv");
-    //let mut sim = sim2d::Simulation::new(1.1, 0.01);
-    //sim.run(1000000f64);
 
+use simulation::rbtree::RBTree;
+
+
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+pub enum State {
+    Infected,
+    Healthy,
+}
+
+
+fn main() {
+
+    let results = run_simulation(1000, 1000.0, (1.86, 2.0));
+    print_results(&results);
+    print_results_to_csv_file(&results, "results_rb_continue.csv");
 }

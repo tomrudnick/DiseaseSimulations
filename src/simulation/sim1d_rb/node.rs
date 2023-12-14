@@ -3,10 +3,12 @@ use rand_distr::{Exp, Exp1};
 
 use super::utils::*;
 
+
+#[derive(Copy, Clone)]
 pub struct Node {
-    t_heal: f64,
-    t_infect_left: f64,
-    t_infect_right: f64,
+    pub t_heal: f64,
+    pub t_infect_left: f64,
+    pub t_infect_right: f64,
     pub state: State,
 }
 
@@ -94,5 +96,34 @@ impl Node {
                 self.heal(exp);
             }
         }
+    }
+}
+
+
+impl Ord for Node {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.partial_cmp(other).unwrap()
+    }
+}
+
+impl Eq for Node {}
+
+impl PartialOrd for Node {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.state.partial_cmp(&other.state)
+            .and_then(|ord| {
+                match ord {
+                    std::cmp::Ordering::Equal => {
+                        self.get_min().partial_cmp(&other.get_min())
+                    },
+                    _ => Some(ord)
+                }
+            })
+    }
+}
+
+impl PartialEq for Node {
+    fn eq(&self, other: &Self) -> bool {
+        self.get_min() == other.get_min() && self.state == other.state
     }
 }
